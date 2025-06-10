@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}All Questions - DSA Questions Manager{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>DSA Questions</h1>
+                <a href="{{ url_for('add_question') }}" class="btn btn-primary">
+                    <i data-feather="plus"></i>
+                    Add New Question
+                </a>
+            </div>
+
+            <!-- Search and Filter Section -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('index') }}" class="row g-3">
+                        <div class="col-md-4">
+                            <label for="search" class="form-label">Search Questions</label>
+                            <input type="text" class="form-control" id="search" name="search" 
+                                   placeholder="Search by question or topic name..." 
+                                   value="{{ current_search }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="difficulty" class="form-label">Difficulty</label>
+                            <select class="form-select" id="difficulty" name="difficulty">
+                                <option value="">All Difficulties</option>
+                                {% for difficulty in difficulties %}
+                                    <option value="{{ difficulty }}" 
+                                            {% if current_difficulty == difficulty %}selected{% endif %}>
+                                        {{ difficulty }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="topic" class="form-label">Topic</label>
+                            <select class="form-select" id="topic" name="topic">
+                                <option value="">All Topics</option>
+                                {% for topic in topics %}
+                                    <option value="{{ topic }}" 
+                                            {% if current_topic == topic %}selected{% endif %}>
+                                        {{ topic }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-outline-primary me-2">
+                                <i data-feather="search"></i>
+                                Filter
+                            </button>
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                                <i data-feather="x"></i>
+                                Clear
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Questions List -->
+            {% if questions %}
+                <div class="row">
+                    {% for question in questions %}
+                        <div class="col-lg-6 col-xl-4 mb-4">
+                            <div class="card h-100">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">{{ question.topic_name }}</small>
+                                    <span class="badge bg-{{ 'success' if question.difficulty_level == 'Easy' else 'warning' if question.difficulty_level == 'Medium' else 'danger' }}">
+                                        {{ question.difficulty_level }}
+                                    </span>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ question.question_name }}</h5>
+                                    
+                                    <!-- Approaches Summary -->
+                                    <div class="mb-3">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <i data-feather="zap" class="me-2"></i>
+                                            <strong>Approach 1:</strong>
+                                            <span class="ms-auto badge bg-secondary">{{ question.approach1_time_complexity }}</span>
+                                        </div>
+                                        {% if question.approach2_description %}
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i data-feather="zap" class="me-2"></i>
+                                                <strong>Approach 2:</strong>
+                                                <span class="ms-auto badge bg-secondary">{{ question.approach2_time_complexity }}</span>
+                                            </div>
+                                        {% endif %}
+                                        {% if question.approach3_description %}
+                                            <div class="d-flex align-items-center mb-2">
+                                                <i data-feather="zap" class="me-2"></i>
+                                                <strong>Approach 3:</strong>
+                                                <span class="ms-auto badge bg-secondary">{{ question.approach3_time_complexity }}</span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    {% if question.question_link %}
+                                        <a href="{{ question.question_link }}" target="_blank" class="btn btn-link p-0 mb-2">
+                                            <i data-feather="external-link"></i>
+                                            View Problem
+                                        </a>
+                                    {% endif %}
+                                </div>
+                                <div class="card-footer">
+                                    <div class="btn-group w-100" role="group">
+                                        <a href="{{ url_for('view_question', question_id=question.id) }}" class="btn btn-outline-primary btn-sm">
+                                            <i data-feather="eye"></i>
+                                            View
+                                        </a>
+                                        <a href="{{ url_for('edit_question', question_id=question.id) }}" class="btn btn-outline-secondary btn-sm">
+                                            <i data-feather="edit"></i>
+                                            Edit
+                                        </a>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" 
+                                                onclick="confirmDelete({{ question.id }}, '{{ question.question_name }}')">
+                                            <i data-feather="trash-2"></i>
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i data-feather="inbox" class="text-muted mb-3" style="width: 64px; height: 64px;"></i>
+                    <h3 class="text-muted">No Questions Found</h3>
+                    <p class="text-muted">
+                        {% if current_search or current_difficulty or current_topic %}
+                            No questions match your search criteria. Try adjusting your filters.
+                        {% else %}
+                            Start by adding your first DSA question!
+                        {% endif %}
+                    </p>
+                    <a href="{{ url_for('add_question') }}" class="btn btn-primary">
+                        <i data-feather="plus"></i>
+                        Add Your First Question
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete "<span id="deleteQuestionName"></span>"?</p>
+                <p class="text-muted">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmDelete(questionId, questionName) {
+    document.getElementById('deleteQuestionName').textContent = questionName;
+    document.getElementById('deleteForm').action = `/delete/${questionId}`;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

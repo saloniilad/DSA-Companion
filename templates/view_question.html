@@ -1,0 +1,181 @@
+{% extends "base.html" %}
+
+{% block title %}{{ question.question_name }} - DSA Questions Manager{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Question Header -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="mb-0">{{ question.question_name }}</h1>
+                        <div class="mt-2">
+                            <span class="badge bg-info me-2">{{ question.topic_name }}</span>
+                            <span class="badge bg-{{ 'success' if question.difficulty_level == 'Easy' else 'warning' if question.difficulty_level == 'Medium' else 'danger' }}">
+                                {{ question.difficulty_level }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="btn-group">
+                        <a href="{{ url_for('edit_question', question_id=question.id) }}" class="btn btn-outline-primary">
+                            <i data-feather="edit"></i>
+                            Edit
+                        </a>
+                        <button type="button" class="btn btn-outline-danger" 
+                                onclick="confirmDelete({{ question.id }}, '{{ question.question_name }}')">
+                            <i data-feather="trash-2"></i>
+                            Delete
+                        </button>
+                    </div>
+                </div>
+                
+                {% if question.question_link %}
+                <div class="card-body">
+                    <a href="{{ question.question_link }}" target="_blank" class="btn btn-outline-primary">
+                        <i data-feather="external-link"></i>
+                        View Original Problem
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Approaches -->
+            <div class="row">
+                <!-- Approach 1 -->
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i data-feather="zap"></i>
+                                Approach 1
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6>Time Complexity</h6>
+                                <span class="badge bg-secondary fs-6">{{ question.approach1_time_complexity }}</span>
+                            </div>
+                            <div>
+                                <h6>Description</h6>
+                                <div class="approach-description">
+                                    {{ question.approach1_description | replace('\n', '<br>') | safe }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Approach 2 -->
+                {% if question.approach2_description %}
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-success text-white">
+                            <h5 class="mb-0">
+                                <i data-feather="zap"></i>
+                                Approach 2
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6>Time Complexity</h6>
+                                <span class="badge bg-secondary fs-6">{{ question.approach2_time_complexity }}</span>
+                            </div>
+                            <div>
+                                <h6>Description</h6>
+                                <div class="approach-description">
+                                    {{ question.approach2_description | replace('\n', '<br>') | safe }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Approach 3 -->
+                {% if question.approach3_description %}
+                <div class="col-lg-4 mb-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="mb-0">
+                                <i data-feather="zap"></i>
+                                Approach 3
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6>Time Complexity</h6>
+                                <span class="badge bg-secondary fs-6">{{ question.approach3_time_complexity }}</span>
+                            </div>
+                            <div>
+                                <h6>Description</h6>
+                                <div class="approach-description">
+                                    {{ question.approach3_description | replace('\n', '<br>') | safe }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Metadata -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="row text-muted small">
+                        <div class="col-md-6">
+                            <i data-feather="calendar"></i>
+                            Created: {{ question.created_at.strftime('%Y-%m-%d %H:%M') }}
+                        </div>
+                        <div class="col-md-6">
+                            <i data-feather="edit-3"></i>
+                            Last Updated: {{ question.updated_at.strftime('%Y-%m-%d %H:%M') }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="mt-4">
+                <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                    <i data-feather="arrow-left"></i>
+                    Back to All Questions
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete "<span id="deleteQuestionName"></span>"?</p>
+                <p class="text-muted">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <button type="submit" class="btn btn-danger">Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function confirmDelete(questionId, questionName) {
+    document.getElementById('deleteQuestionName').textContent = questionName;
+    document.getElementById('deleteForm').action = `/delete/${questionId}`;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

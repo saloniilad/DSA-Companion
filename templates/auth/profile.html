@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - DSA Questions Manager{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0">User Profile</h2>
+                    <div class="btn-group">
+                        <a href="{{ url_for('auth.edit_profile') }}" class="btn btn-outline-primary btn-sm">
+                            <i data-feather="edit"></i>
+                            Edit Profile
+                        </a>
+                        <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-secondary btn-sm">
+                            <i data-feather="lock"></i>
+                            Change Password
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3 text-center">
+                            <div class="mb-3">
+                                <i data-feather="user" class="text-primary" style="width: 80px; height: 80px;"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <th width="30%">Full Name:</th>
+                                    <td>{{ user.get_full_name() }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Username:</th>
+                                    <td>{{ user.username }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Email:</th>
+                                    <td>{{ user.email }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Member Since:</th>
+                                    <td>{{ user.created_at.strftime('%B %d, %Y') }}</td>
+                                </tr>
+                                <tr>
+                                    <th>Questions Created:</th>
+                                    <td>{{ user.questions|length }}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Questions -->
+            {% if user.questions %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Your Recent Questions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for question in user.questions[:5] %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <div>
+                                <h6 class="mb-1">{{ question.question_name }}</h6>
+                                <small class="text-muted">{{ question.topic_name }} - {{ question.difficulty_level }}</small>
+                            </div>
+                            <div>
+                                <a href="{{ url_for('view_question', question_id=question.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i data-feather="eye"></i>
+                                    View
+                                </a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% if user.questions|length > 5 %}
+                    <div class="text-center mt-3">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                            View All Questions
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

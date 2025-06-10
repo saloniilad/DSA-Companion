@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Add Question - DSA Questions Manager{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">Add New DSA Question</h2>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('add_question') }}">
+                        <!-- Basic Information -->
+                        <div class="mb-4">
+                            <h5>Basic Information</h5>
+                            <hr>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="topic_name" class="form-label">Topic Name *</label>
+                                    <input type="text" class="form-control" id="topic_name" name="topic_name" 
+                                           placeholder="e.g., Arrays, Dynamic Programming" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="difficulty_level" class="form-label">Difficulty Level *</label>
+                                    <select class="form-select" id="difficulty_level" name="difficulty_level" required>
+                                        <option value="">Select Difficulty</option>
+                                        <option value="Easy">Easy</option>
+                                        <option value="Medium">Medium</option>
+                                        <option value="Hard">Hard</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="question_name" class="form-label">Question Name *</label>
+                                <input type="text" class="form-control" id="question_name" name="question_name" 
+                                       placeholder="e.g., Two Sum, Longest Common Subsequence" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="question_link" class="form-label">Question Link</label>
+                                <input type="url" class="form-control" id="question_link" name="question_link" 
+                                       placeholder="https://leetcode.com/problems/...">
+                                <div class="form-text">Optional: Link to the problem on LeetCode, HackerRank, etc.</div>
+                            </div>
+                        </div>
+
+                        <!-- Approach 1 (Required) -->
+                        <div class="mb-4">
+                            <h5>Approach 1 (Required)</h5>
+                            <hr>
+                            
+                            <div class="mb-3">
+                                <label for="approach1_description" class="form-label">Description *</label>
+                                <textarea class="form-control" id="approach1_description" name="approach1_description" 
+                                          rows="4" placeholder="Describe the approach, algorithm, and implementation details..." required></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="approach1_time_complexity" class="form-label">Time Complexity *</label>
+                                <input type="text" class="form-control" id="approach1_time_complexity" name="approach1_time_complexity" 
+                                       placeholder="e.g., O(n), O(n log n), O(n²)" required>
+                            </div>
+                        </div>
+
+                        <!-- Approach 2 (Optional) -->
+                        <div class="mb-4">
+                            <h5>Approach 2 (Optional)</h5>
+                            <hr>
+                            
+                            <div class="mb-3">
+                                <label for="approach2_description" class="form-label">Description</label>
+                                <textarea class="form-control" id="approach2_description" name="approach2_description" 
+                                          rows="4" placeholder="Describe an alternative approach..."></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="approach2_time_complexity" class="form-label">Time Complexity</label>
+                                <input type="text" class="form-control" id="approach2_time_complexity" name="approach2_time_complexity" 
+                                       placeholder="e.g., O(n), O(n log n), O(n²)">
+                            </div>
+                        </div>
+
+                        <!-- Approach 3 (Optional) -->
+                        <div class="mb-4">
+                            <h5>Approach 3 (Optional)</h5>
+                            <hr>
+                            
+                            <div class="mb-3">
+                                <label for="approach3_description" class="form-label">Description</label>
+                                <textarea class="form-control" id="approach3_description" name="approach3_description" 
+                                          rows="4" placeholder="Describe a third approach..."></textarea>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="approach3_time_complexity" class="form-label">Time Complexity</label>
+                                <input type="text" class="form-control" id="approach3_time_complexity" name="approach3_time_complexity" 
+                                       placeholder="e.g., O(n), O(n log n), O(n²)">
+                            </div>
+                        </div>
+
+                        <!-- Form Actions -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('index') }}" class="btn btn-secondary">
+                                <i data-feather="arrow-left"></i>
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i data-feather="save"></i>
+                                Save Question
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-fill time complexity when description is filled
+document.addEventListener('DOMContentLoaded', function() {
+    // Enable/disable time complexity fields based on description content
+    const approaches = [2, 3];
+    
+    approaches.forEach(num => {
+        const descField = document.getElementById(`approach${num}_description`);
+        const timeField = document.getElementById(`approach${num}_time_complexity`);
+        
+        if (descField && timeField) {
+            descField.addEventListener('input', function() {
+                if (this.value.trim() === '') {
+                    timeField.disabled = true;
+                    timeField.value = '';
+                } else {
+                    timeField.disabled = false;
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %}
